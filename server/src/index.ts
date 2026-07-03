@@ -4,13 +4,13 @@ dotenv.config()
 import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
-import authRoutes    from './routes/auth'
-import gameRoutes    from './routes/games'
-import userRoutes    from './routes/users'
-import historyRoutes from './routes/history'
-import voucherRoutes from './routes/vouchers'
-import adminRoutes   from './routes/admin'
-import webhookRoutes from './routes/webhook'
+import authRoutes    from './routes/auth.js'
+import gameRoutes    from './routes/games.js'
+import userRoutes    from './routes/users.js'
+import historyRoutes from './routes/history.js'
+import voucherRoutes from './routes/vouchers.js'
+import adminRoutes   from './routes/admin.js'
+import webhookRoutes from './routes/webhook.js'
 
 dotenv.config()
 
