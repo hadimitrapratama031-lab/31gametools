@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ThreeOne Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--bg2:#12121c;--bg3:#16161f;--bg4:#1c1c28;
+  --border:#2a2a3d;--violet:#7c6ef7;--violet-dark:#5b4ee8;
+  --green:#22c55e;--red:#ef4444;--gold:#f59e0b;--blue:#3b82f6;
+  --t1:#f1f1f5;--t2:#8b8fa8;--t3:#4a4a6a;
+  --r:12px;
+}
+body{background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;min-height:100vh;display:flex}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* Layout */
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:sticky;top:0}
+.main{flex:1;min-width:0;overflow-y:auto;height:100vh}
+
+/* Logo */
+.logo{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--violet),var(--violet-dark));border-radius:10px;display:flex;align-items:center;justify-center:center;font-family:'Outfit',sans-serif;font-weight:900;font-size:14px;color:#fff;text-align:center;line-height:36px;justify-content:center}
+.logo-text{font-family:'Outfit',sans-serif;font-weight:800;font-size:13px}
+.logo-sub{font-size:9px;color:var(--t3);letter-spacing:3px;margin-top:1px}
+
+/* Nav */
+nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg4);color:var(--t1)}
+.nav-item.active{background:rgba(124,110,247,.15);color:var(--violet);border:1px solid rgba(124,110,247,.2)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+
+/* Admin badge */
+.admin-badge{margin:12px;padding:10px 12px;background:rgba(124,110,247,.08);border:1px solid rgba(124,110,247,.2);border-radius:10px;font-size:11px}
+.admin-badge .label{color:var(--t3);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+.admin-badge .val{color:var(--violet);font-weight:700}
+
+/* Header */
+.header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)/80;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px)}
+.page-title{font-family:'Outfit',sans-serif;font-weight:800;font-size:18px}
+.page-sub{font-size:12px;color:var(--t2);margin-top:2px}
+
+/* Content */
+.content{padding:24px 28px}
+
+/* Cards */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:20px}
+.card-sm{padding:14px 16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Stat card */
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.stat-num{font-family:'Outfit',sans-serif;font-weight:800;font-size:28px;line-height:1}
+.stat-label{font-size:11px;color:var(--t2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.stat-change{font-size:11px;margin-top:6px}
+.stat-change.up{color:var(--green)}.stat-change.down{color:var(--red)}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 14px;text-align:left;font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);font-weight:600}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:hover{background:var(--bg4)}
+tbody td{padding:12px 14px;font-size:13px;vertical-align:middle}
+tbody tr:last-child{border-bottom:none}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
+.badge-violet{background:rgba(124,110,247,.1);border:1px solid rgba(124,110,247,.2);color:var(--violet)}
+.badge-green{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:var(--green)}
+.badge-red{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red)}
+.badge-gold{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:var(--gold)}
+.badge-blue{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--blue)}
+.badge-gray{background:var(--bg4);border:1px solid var(--border);color:var(--t2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,var(--violet),var(--violet-dark));color:#fff}
+.btn-primary:hover{box-shadow:0 0 16px rgba(124,110,247,.4);transform:translateY(-1px)}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border);color:var(--t2)}
+.btn-ghost:hover{border-color:var(--violet);color:var(--t1)}
+.btn-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+/* Input */
+.input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--t1);width:100%;outline:none;transition:border .15s;font-family:'Inter',sans-serif}
+.input:focus{border-color:var(--violet)}
+.input::placeholder{color:var(--t3)}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8fa8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.close-btn{width:28px;height:28px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+.close-btn:hover{color:var(--t1)}
+
+/* Form grid */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:span 2}
+
+/* Search bar */
+.search-bar{display:flex;gap:10px;margin-bottom:16px}
+.search-wrap{position:relative;flex:1}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3)}
+
+/* Avatar */
+.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+.avatar-placeholder{width:32px;height:32px;border-radius:50%;background:var(--bg4);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--violet)}
+
+/* Section title */
+.section-title{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:12px}
+
+/* Dot status */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.dot-green{background:var(--green)}.dot-red{background:var(--red)}.dot-gray{background:var(--t3)}
+
+/* Toast */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:slideToast .3s ease}
+.toast.success{border-color:rgba(34,197,94,.3)}
+.toast.error{border-color:rgba(239,68,68,.3)}
+@keyframes slideToast{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* Page sections */
+.page{display:none}.page.active{display:block}
+
+/* Copy */
+.copy-code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--violet)}
+
+/* Webhook input with test btn */
+.webhook-row{display:flex;gap:8px}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;margin-bottom:20px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:3px}
+.tab{flex:1;padding:7px;text-align:center;border-radius:7px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .15s}
+.tab.active{background:var(--violet);color:#fff}
+
+/* Donut (simple CSS) */
+.donut{width:80px;height:80px;border-radius:50%;background:conic-gradient(var(--violet) 54%,var(--border) 54%);display:flex;align-items:center;justify-content:center;position:relative}
+.donut::after{content:'';position:absolute;width:56px;height:56px;background:var(--bg3);border-radius:50%}
+.donut-label{position:relative;z-index:1;font-size:11px;font-weight:700;color:var(--t1)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">31</div>
+    <div>
+      <div class="logo-text">THREEONE</div>
+      <div class="logo-sub">ADMIN PANEL</div>
+    </div>
+  </div>
+
+  <nav>
+    <button class="nav-item active" onclick="showPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" onclick="showPage('users',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Manajemen User
+    </button>
+    <button class="nav-item" onclick="showPage('games',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Manajemen Game
+    </button>
+    <button class="nav-item" onclick="showPage('bypass',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Manajemen Bypass
+    </button>
+    <button class="nav-item" onclick="showPage('vouchers',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+      Voucher
+    </button>
+    <button class="nav-item" onclick="showPage('history',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Histori Global
+    </button>
+    <button class="nav-item" onclick="showPage('settings',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Pengaturan
+    </button>
+  </nav>
+
+  <div class="admin-badge">
+    <div class="label">Login sebagai</div>
+    <div class="val">Administrator</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ── DASHBOARD ── -->
+  <div id="page-dashboard" class="page active">
+    <div class="header">
+      <div><div class="page-title">Dashboard</div><div class="page-sub">Overview ThreeOne Store</div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm">↻ Refresh</button>
+        <span class="badge badge-green"><span class="dot dot-green"></span> Server Online</span>
+      </div>
+    </div>
+    <div class="content">
+      <!-- Stat cards -->
+      <div class="grid-4">
+        <div class="card card-sm">
+          <div class="stat-icon" style="background:rgba(124,110,247,.1)">👥</div>
+          <div class="stat-num">1,284</div>
+          <div class="stat-label">Total User</div>
+          <div class="stat-change up">↑ +12 hari ini</div>
+        </div>
+        <div class="card card-sm">
+          <div class="stat-icon" style="background:rgba(34,197,94,.1)">🎮</div>
+          <div class="stat-num">256</div>
+          <div class="stat-label">Total Game</div>
+          <div class="stat-change up">↑ +3 minggu ini</div>
+        </div>
+        <div class="card card-sm">
+          <div class="stat-icon" style="background:rgba(245,158,11,.1)">🎟️</div>
+          <div class="stat-num">48</div>
+          <div class="stat-label">Voucher Aktif</div>
+          <div class="stat-change down">↓ 5 kadaluarsa</div>
+        </div>
+        <div class="card card-sm">
+          <div class="stat-icon" style="background:rgba(59,130,246,.1)">⬇️</div>
+          <div class="stat-num">3,491</div>
+          <div class="stat-label">Total Download</div>
+          <div class="stat-change up">↑ +128 hari ini</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Role distribution -->
+        <div class="card">
+          <div class="section-title">Distribusi Role</div>
+          <div style="display:flex;align-items:center;gap:20px">
+            <div class="donut"><div class="donut-label">1.2K</div></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--t2)">Public</span><span style="font-weight:700">1,024</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gold)">Gold</span><span style="font-weight:700">182</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--violet)">Platinum</span><span style="font-weight:700">76</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--red)">Admin</span><span style="font-weight:700">2</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent activity -->
+        <div class="card">
+          <div class="section-title">Aktivitas Terbaru</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+              <span class="badge badge-violet">Inject</span>
+              <span style="flex:1;color:var(--t2)">brooke.31 → CoD MW III</span>
+              <span style="color:var(--t3)">2m lalu</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+              <span class="badge badge-blue">Bypass</span>
+              <span style="flex:1;color:var(--t2)">juliants23_ → EAC</span>
+              <span style="color:var(--t3)">5m lalu</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+              <span class="badge badge-gold">Voucher</span>
+              <span style="flex:1;color:var(--t2)">derdon0403 redeem GOLD7</span>
+              <span style="color:var(--t3)">12m lalu</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+              <span class="badge badge-green">Login</span>
+              <span style="flex:1;color:var(--t2)">whitesvarogutek8904</span>
+              <span style="color:var(--t3)">18m lalu</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── USERS ── -->
+  <div id="page-users" class="page">
+    <div class="header">
+      <div><div class="page-title">Manajemen User</div><div class="page-sub">Kelola semua user terdaftar</div></div>
+      <button class="btn btn-primary btn-sm">+ Tambah User</button>
+    </div>
+    <div class="content">
+      <div class="search-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="input" style="padding-left:34px" placeholder="Cari username atau Discord ID...">
+        </div>
+        <select class="input select" style="width:140px">
+          <option>Semua Role</option>
+          <option>Public</option>
+          <option>Gold</option>
+          <option>Platinum</option>
+          <option>Admin</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>User</th><th>Discord ID</th><th>Role</th><th>Download</th><th>Status</th><th>Join</th><th>Aksi</th>
+            </tr></thead>
+            <tbody id="users-tbody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GAMES ── -->
+  <div id="page-games" class="page">
+    <div class="header">
+      <div><div class="page-title">Manajemen Game</div><div class="page-sub">Tambah dan kelola daftar game</div></div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-game')">+ Tambah Game</button>
+    </div>
+    <div class="content">
+      <div class="search-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="input" style="padding-left:34px" placeholder="Cari game...">
+        </div>
+        <select class="input select" style="width:140px">
+          <option>Semua Status</option><option>Online</option><option>Offline</option>
+        </select>
+        <select class="input select" style="width:140px">
+          <option>Semua Role</option><option>Public</option><option>Gold</option><option>Platinum</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Game</th><th>App ID</th><th>Kategori</th><th>Min Role</th><th>Mode</th><th>Status</th><th>Aksi</th>
+            </tr></thead>
+            <tbody id="games-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BYPASS ── -->
+  <div id="page-bypass" class="page">
+    <div class="header">
+      <div><div class="page-title">Manajemen Bypass</div><div class="page-sub">Kelola file bypass anti-cheat</div></div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-bypass')">+ Tambah Bypass</button>
+    </div>
+    <div class="content">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Anti-Cheat</th><th>Versi</th><th>Game Didukung</th><th>File</th><th>Status</th><th>Aksi</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Easy Anti-Cheat</strong></td>
+                <td><span class="copy-code">2.2.10</span></td>
+                <td><span class="badge badge-gray">Fortnite</span> <span class="badge badge-gray">Rust</span></td>
+                <td><span class="copy-code">eac_bypass.dll</span></td>
+                <td><span class="badge badge-green">Aktif</span></td>
+                <td><div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm">Edit</button>
+                  <button class="btn btn-danger btn-sm">Hapus</button>
+                </div></td>
+              </tr>
+              <tr>
+                <td><strong>BattleEye</strong></td>
+                <td><span class="copy-code">1.6.7</span></td>
+                <td><span class="badge badge-gray">PUBG</span> <span class="badge badge-gray">DayZ</span></td>
+                <td><span class="copy-code">be_bypass.dll</span></td>
+                <td><span class="badge badge-green">Aktif</span></td>
+                <td><div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm">Edit</button>
+                  <button class="btn btn-danger btn-sm">Hapus</button>
+                </div></td>
+              </tr>
+              <tr>
+                <td><strong>GameGuard</strong></td>
+                <td><span class="copy-code">3.1.2</span></td>
+                <td><span class="badge badge-gray">Lost Ark</span></td>
+                <td><span class="copy-code">gg_bypass.dll</span></td>
+                <td><span class="badge badge-green">Aktif</span></td>
+                <td><div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm">Edit</button>
+                  <button class="btn btn-danger btn-sm">Hapus</button>
+                </div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VOUCHERS ── -->
+  <div id="page-vouchers" class="page">
+    <div class="header">
+      <div><div class="page-title">Voucher</div><div class="page-sub">Generate dan kelola kode voucher</div></div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-gen-voucher')">+ Generate Voucher</button>
+    </div>
+    <div class="content">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Kode</th><th>Role</th><th>Durasi</th><th>Digunakan</th><th>Kadaluarsa</th><th>Status</th><th>Aksi</th>
+            </tr></thead>
+            <tbody id="vouchers-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HISTORY ── -->
+  <div id="page-history" class="page">
+    <div class="header">
+      <div><div class="page-title">Histori Global</div><div class="page-sub">Semua aktivitas semua user</div></div>
+      <select class="input select" style="width:140px">
+        <option>Semua Tipe</option><option>Inject</option><option>Bypass</option><option>Patch</option><option>Sistem</option>
+      </select>
+    </div>
+    <div class="content">
+      <div class="card" style="padding:0;overflow:hidden">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Waktu</th><th>User</th><th>Tipe</th><th>Game / Tool</th><th>Detail</th><th>Status</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--t2);font-size:12px">17 Mei 2024<br>14:32</td>
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar-placeholder">B</div><span>brooke.31</span></div></td>
+                <td><span class="badge badge-violet">Inject</span></td>
+                <td>Call of Duty: MW III</td>
+                <td style="color:var(--t2);font-size:12px">Mode: FPS · mw3_injector.exe</td>
+                <td><span class="badge badge-green">Sukses</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--t2);font-size:12px">17 Mei 2024<br>13:48</td>
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar-placeholder">J</div><span>juliants23_</span></div></td>
+                <td><span class="badge badge-blue">Bypass</span></td>
+                <td>Easy Anti-Cheat</td>
+                <td style="color:var(--t2);font-size:12px">v2.2.10 · Bypass Aktif</td>
+                <td><span class="badge badge-green">Sukses</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--t2);font-size:12px">15 Mei 2024<br>18:41</td>
+                <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar-placeholder">D</div><span>derdon0403</span></div></td>
+                <td><span class="badge badge-violet">Inject</span></td>
+                <td>Red Dead Redemption 2</td>
+                <td style="color:var(--red);font-size:12px">File tidak ditemukan</td>
+                <td><span class="badge badge-red">Gagal</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div id="page-settings" class="page">
+    <div class="header">
+      <div><div class="page-title">Pengaturan</div><div class="page-sub">Konfigurasi server dan webhook</div></div>
+    </div>
+    <div class="content" style="max-width:640px">
+      <!-- Discord Webhook -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="section-title">Discord Webhook</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="form-group">
+            <label>URL Webhook (Server Notif)</label>
+            <div class="webhook-row">
+              <input class="input" placeholder="https://discord.com/api/webhooks/..." style="flex:1">
+              <button class="btn btn-ghost" onclick="toast('Webhook test terkirim!','success')">Test</button>
+              <button class="btn btn-primary" onclick="toast('Webhook disimpan','success')">Simpan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discord Bot -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="section-title">Discord Bot & Guild</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Bot Token</label>
+            <input class="input" type="password" placeholder="Bot token...">
+          </div>
+          <div class="form-group">
+            <label>Guild ID (Server)</label>
+            <input class="input" placeholder="1234567890...">
+          </div>
+          <div class="form-group">
+            <label>Required Role ID</label>
+            <input class="input" placeholder="Role yang harus dimiliki user">
+          </div>
+          <div class="form-group">
+            <label>Discord Redirect URI</label>
+            <input class="input" placeholder="http://localhost:4000/auth/discord/callback">
+          </div>
+        </div>
+        <div style="margin-top:14px;text-align:right">
+          <button class="btn btn-primary" onclick="toast('Konfigurasi bot disimpan','success')">Simpan</button>
+        </div>
+      </div>
+
+      <!-- Ryu API -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="section-title">Ryu API Keys (5 rotasi)</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div id="ryu-keys">
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <input class="input" placeholder="Ryu Key 1" style="flex:1">
+              <span class="badge badge-green" style="align-self:center">Aktif</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <input class="input" placeholder="Ryu Key 2" style="flex:1">
+              <span class="badge badge-gray" style="align-self:center">Kosong</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <input class="input" placeholder="Ryu Key 3" style="flex:1">
+              <span class="badge badge-gray" style="align-self:center">Kosong</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <input class="input" placeholder="Ryu Key 4" style="flex:1">
+              <span class="badge badge-gray" style="align-self:center">Kosong</span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <input class="input" placeholder="Ryu Key 5" style="flex:1">
+              <span class="badge badge-gray" style="align-self:center">Kosong</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+          <div class="form-group" style="flex:1;margin-right:10px">
+            <label>SteamGridDB Key (Fallback)</label>
+            <input class="input" placeholder="SteamGridDB API key...">
+          </div>
+          <button class="btn btn-primary" style="align-self:flex-end" onclick="toast('API keys disimpan','success')">Simpan</button>
+        </div>
+      </div>
+
+      <!-- Server Info -->
+      <div class="card">
+        <div class="section-title">Info Server</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">Versi</span><span>2.0.0</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">MongoDB</span><span style="color:var(--green)">Terhubung</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--t2)">Port</span><span>4000</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- MODALS -->
+
+<!-- Add Game -->
+<div id="modal-add-game" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="font-weight:700">Tambah Game</div>
+      <button class="close-btn" onclick="closeModal('modal-add-game')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nama Game</label>
+          <input class="input" placeholder="Call of Duty: MW III">
+        </div>
+        <div class="form-group">
+          <label>Steam App ID</label>
+          <input class="input" placeholder="1938090">
+        </div>
+        <div class="form-group">
+          <label>Kategori</label>
+          <select class="input select">
+            <option>FPS</option><option>Action</option><option>RPG</option><option>Racing</option><option>Sports</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Minimum Role</label>
+          <select class="input select">
+            <option>public</option><option>gold</option><option>platinum</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mode Inject</label>
+          <input class="input" placeholder="FPS, Story, Career (pisah koma)">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select class="input select">
+            <option>online</option><option>offline</option><option>maintenance</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>File Injector</label>
+          <input class="input" placeholder="mw3_injector.exe">
+        </div>
+        <div class="form-group full">
+          <label>Cover URL (opsional - otomatis dari Ryu/Steam)</label>
+          <input class="input" placeholder="https://...">
+        </div>
+        <div class="form-group full" style="display:flex;align-items:center;gap:10px">
+          <input type="checkbox" id="featured" style="width:16px;height:16px;accent-color:var(--violet)">
+          <label for="featured" style="margin:0;text-transform:none;font-size:13px;color:var(--t1)">Tandai sebagai Featured</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-game')">Batal</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-add-game');toast('Game berhasil ditambahkan','success')">Tambah Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Bypass -->
+<div id="modal-add-bypass" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="font-weight:700">Tambah Bypass</div>
+      <button class="close-btn" onclick="closeModal('modal-add-bypass')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nama Anti-Cheat</label>
+          <input class="input" placeholder="Easy Anti-Cheat">
+        </div>
+        <div class="form-group">
+          <label>Versi</label>
+          <input class="input" placeholder="2.2.10">
+        </div>
+        <div class="form-group full">
+          <label>Games Didukung (pisah koma)</label>
+          <input class="input" placeholder="Fortnite, Rust, Dead by Daylight">
+        </div>
+        <div class="form-group full">
+          <label>Nama File Bypass</label>
+          <input class="input" placeholder="eac_bypass.dll">
+        </div>
+        <div class="form-group full">
+          <label>Path Ekstrak Default</label>
+          <input class="input" placeholder="EasyAntiCheat">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select class="input select"><option>Aktif</option><option>Tidak Aktif</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-bypass')">Batal</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-add-bypass');toast('Bypass ditambahkan','success')">Tambah</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Voucher -->
+<div id="modal-gen-voucher" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="font-weight:700">Generate Voucher</div>
+      <button class="close-btn" onclick="closeModal('modal-gen-voucher')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Role</label>
+          <select class="input select"><option>gold</option><option>platinum</option></select>
+        </div>
+        <div class="form-group">
+          <label>Durasi (hari)</label>
+          <input class="input" type="number" value="30">
+        </div>
+        <div class="form-group">
+          <label>Max Penggunaan</label>
+          <input class="input" type="number" value="1">
+        </div>
+        <div class="form-group">
+          <label>Jumlah Kode</label>
+          <input class="input" type="number" value="1" min="1" max="50">
+        </div>
+        <div class="form-group full">
+          <label>Kadaluarsa (opsional)</label>
+          <input class="input" type="date">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-gen-voucher')">Batal</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-gen-voucher');generateVouchers()">Generate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ── Navigation ────────────────────────────────────────────────
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'))
+  document.getElementById('page-' + id).classList.add('active')
+  btn.classList.add('active')
+}
+
+// ── Modal ─────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open') }
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open') })
+})
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const el = document.createElement('div')
+  const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'
+  el.className = `toast ${type}`
+  el.innerHTML = `<span>${icon}</span><span>${msg}</span>`
+  document.getElementById('toasts').appendChild(el)
+  setTimeout(() => el.remove(), 3000)
+}
+
+// ── Mock Data ─────────────────────────────────────────────────
+const USERS = [
+  { name:'brooke.31',          did:'781234567890',  role:'platinum', dl:'∞',  banned:false, join:'Jan 2024' },
+  { name:'whitesvarogutek8904',did:'781234567891',  role:'gold',     dl:'2/3', banned:false, join:'Feb 2024' },
+  { name:'juliants23_',        did:'781234567892',  role:'public',   dl:'1/3', banned:false, join:'Mar 2024' },
+  { name:'derdon0403',         did:'781234567893',  role:'gold',     dl:'3/3', banned:false, join:'Mar 2024' },
+  { name:'31.shop',            did:'781234567894',  role:'public',   dl:'0/3', banned:true,  join:'Apr 2024' },
+]
+
+const GAMES_DATA = [
+  { name:'Call of Duty: MW III', appId:'1938090', cat:'FPS',    role:'public',   modes:'FPS, Story',   status:'online'  },
+  { name:'GTA V',                appId:'271590',  cat:'Action', role:'public',   modes:'Story',         status:'online'  },
+  { name:'Spider-Man 2',         appId:'1817070', cat:'Action', role:'gold',     modes:'Story',         status:'online'  },
+  { name:'Elden Ring',           appId:'1245620', cat:'RPG',    role:'gold',     modes:'Adventure',     status:'online'  },
+  { name:'Cyberpunk 2077',       appId:'892970',  cat:'RPG',    role:'platinum', modes:'Story',         status:'maintenance' },
+]
+
+const VOUCHERS_DATA = [
+  { code:'GOLD7DAY',  role:'gold',     days:7,  used:1,  max:1,  exp:'2024-06-01', active:false },
+  { code:'PLAT30B2',  role:'platinum', days:30, used:0,  max:5,  exp:'2024-12-31', active:true  },
+  { code:'GOLDTEST',  role:'gold',     days:8,  used:0,  max:10, exp:'-',          active:true  },
+  { code:'DEMO2024',  role:'gold',     days:7,  used:0,  max:99, exp:'-',          active:true  },
+]
+
+const roleBadge = r => ({
+  platinum: '<span class="badge badge-violet">Platinum</span>',
+  gold:     '<span class="badge badge-gold">Gold</span>',
+  public:   '<span class="badge badge-gray">Public</span>',
+  admin:    '<span class="badge badge-red">Admin</span>',
+}[r] || '')
+
+// Render users
+function renderUsers() {
+  document.getElementById('users-tbody').innerHTML = USERS.map(u => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="avatar-placeholder">${u.name[0].toUpperCase()}</div>
+        <span style="font-weight:600">${u.name}</span>
+      </div></td>
+      <td><span class="copy-code">${u.did}</span></td>
+      <td>${roleBadge(u.role)}</td>
+      <td style="color:var(--t2);font-size:12px">${u.dl}</td>
+      <td>${u.banned ? '<span class="badge badge-red">Banned</span>' : '<span class="badge badge-green">Aktif</span>'}</td>
+      <td style="color:var(--t2);font-size:12px">${u.join}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-sm">Edit Role</button>
+        <button class="btn btn-danger btn-sm" onclick="toast('${u.banned ? 'User di-unban' : 'User dibanned'}','${u.banned ? 'success' : 'error'}')">${u.banned ? 'Unban' : 'Ban'}</button>
+      </div></td>
+    </tr>`).join('')
+}
+
+function renderGames() {
+  document.getElementById('games-tbody').innerHTML = GAMES_DATA.map(g => `
+    <tr>
+      <td><strong>${g.name}</strong></td>
+      <td><span class="copy-code">${g.appId}</span></td>
+      <td><span class="badge badge-gray">${g.cat}</span></td>
+      <td>${roleBadge(g.role)}</td>
+      <td style="color:var(--t2);font-size:12px">${g.modes}</td>
+      <td>${g.status === 'online' ? '<span class="badge badge-green">Online</span>' : g.status === 'maintenance' ? '<span class="badge badge-gold">Maintenance</span>' : '<span class="badge badge-red">Offline</span>'}</td>
+      <td><div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-sm">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="toast('Game dihapus','error')">Hapus</button>
+      </div></td>
+    </tr>`).join('')
+}
+
+function renderVouchers() {
+  document.getElementById('vouchers-tbody').innerHTML = VOUCHERS_DATA.map(v => `
+    <tr>
+      <td><span class="copy-code">${v.code}</span></td>
+      <td>${roleBadge(v.role)}</td>
+      <td style="color:var(--t2)">${v.days} hari</td>
+      <td style="color:var(--t2)">${v.used}/${v.max}</td>
+      <td style="color:var(--t2);font-size:12px">${v.exp}</td>
+      <td>${v.active ? '<span class="badge badge-green">Aktif</span>' : '<span class="badge badge-gray">Habis</span>'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="toast('Voucher dihapus','error')">Hapus</button></td>
+    </tr>`).join('')
+}
+
+function generateVouchers() {
+  toast('Voucher berhasil digenerate!', 'success')
+  renderVouchers()
+}
+
+// Init
+renderUsers()
+renderGames()
+renderVouchers()
+</script>
+</body>
+</html>

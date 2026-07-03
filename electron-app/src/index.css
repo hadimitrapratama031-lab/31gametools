@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-primary text-text-primary font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* Titlebar drag region */
+  .drag-region { -webkit-app-region: drag; }
+  .no-drag     { -webkit-app-region: no-drag; }
+
+  /* Glass card */
+  .glass {
+    @apply bg-bg-card border border-bg-border rounded-xl;
+    backdrop-filter: blur(12px);
+  }
+
+  /* Violet button */
+  .btn-violet {
+    @apply bg-gradient-violet text-white font-semibold rounded-lg px-5 py-2.5
+           transition-all duration-200 hover:shadow-violet-glow hover:-translate-y-0.5
+           active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply border border-bg-border text-text-secondary rounded-lg px-5 py-2.5
+           transition-all duration-200 hover:border-violet hover:text-text-primary
+           hover:bg-bg-hover;
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full bg-bg-secondary border border-bg-border rounded-xl px-4 py-3
+           text-text-primary placeholder-text-muted text-sm outline-none
+           transition-all duration-200
+           focus:border-violet focus:ring-2 focus:ring-violet/20;
+  }
+
+  /* Sidebar nav item */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium
+           text-text-secondary transition-all duration-200 cursor-pointer
+           hover:bg-bg-hover hover:text-text-primary;
+  }
+  .nav-item.active {
+    @apply bg-violet/15 text-violet border border-violet/20;
+  }
+
+  /* Status badge */
+  .badge-success { @apply text-accent-green bg-accent-green/10 border border-accent-green/20 text-xs font-semibold px-2 py-0.5 rounded-full; }
+  .badge-error   { @apply text-accent-red   bg-accent-red/10   border border-accent-red/20   text-xs font-semibold px-2 py-0.5 rounded-full; }
+  .badge-violet  { @apply text-violet       bg-violet/10       border border-violet/20        text-xs font-semibold px-2 py-0.5 rounded-full; }
+  .badge-gold    { @apply text-accent-gold  bg-accent-gold/10  border border-accent-gold/20   text-xs font-semibold px-2 py-0.5 rounded-full; }
+
+  /* Scrollable area */
+  .scrollable {
+    @apply overflow-y-auto;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a3d transparent;
+  }
+}
+
+@layer utilities {
+  .text-gradient-violet {
+    background: linear-gradient(135deg, #a498f9, #7c6ef7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .glow-violet { box-shadow: 0 0 24px rgba(124,110,247,0.4); }
+  .glow-green  { box-shadow: 0 0 16px rgba(34,197,94,0.3); }
+}
