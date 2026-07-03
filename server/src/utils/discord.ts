@@ -3,22 +3,41 @@ import axios from 'axios'
 const WEBHOOK_URL    = process.env.DISCORD_WEBHOOK_URL    || ''
 const BOT_TOKEN      = process.env.DISCORD_BOT_TOKEN      || ''
 const GUILD_ID       = process.env.DISCORD_GUILD_ID       || ''
-const REQUIRED_ROLE  = process.env.DISCORD_REQUIRED_ROLE  || ''  // Role ID wajib join
+const REQUIRED_ROLE  = process.env.DISCORD_REQUIRED_ROLE  || ''
 
-// ── Cek apakah user sudah join guild & punya role ──────────────
-export async function checkGuildMember(discordId: string): Promise<{ isMember: boolean; hasRole: boolean }> {
+// Role ID dari Discord → mapping ke role di app
+const ROLE_ADMIN    = process.env.DISCORD_ROLE_ADMIN    || ''
+const ROLE_PLATINUM = process.env.DISCORD_ROLE_PLATINUM || ''
+const ROLE_GOLD     = process.env.DISCORD_ROLE_GOLD     || ''
+const ROLE_PUBLIC   = process.env.DISCORD_ROLE_PUBLIC   || ''
+
+// ── Cek guild membership & ambil role app dari role Discord ──
+export async function checkGuildMember(discordId: string): Promise<{
+  isMember: boolean
+  hasRole:  boolean
+  appRole:  'admin' | 'platinum' | 'gold' | 'public'
+}> {
   try {
     const res = await axios.get(
       `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${discordId}`,
       { headers: { Authorization: `Bot ${BOT_TOKEN}` } }
     )
-    const roles: string[] = res.data.roles || []
+    const discordRoles: string[] = res.data.roles || []
+
+    // Tentukan role app berdasarkan role Discord — prioritas: admin > platinum > gold > public
+    let appRole: 'admin' | 'platinum' | 'gold' | 'public' = 'public'
+    if (ROLE_ADMIN    && discordRoles.includes(ROLE_ADMIN))    appRole = 'admin'
+    else if (ROLE_PLATINUM && discordRoles.includes(ROLE_PLATINUM)) appRole = 'platinum'
+    else if (ROLE_GOLD     && discordRoles.includes(ROLE_GOLD))     appRole = 'gold'
+    else if (ROLE_PUBLIC   && discordRoles.includes(ROLE_PUBLIC))   appRole = 'public'
+
     return {
       isMember: true,
-      hasRole:  !REQUIRED_ROLE || roles.includes(REQUIRED_ROLE),
+      hasRole:  !REQUIRED_ROLE || discordRoles.includes(REQUIRED_ROLE),
+      appRole,
     }
   } catch {
-    return { isMember: false, hasRole: false }
+    return { isMember: false, hasRole: false, appRole: 'public' }
   }
 }
 
